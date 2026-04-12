@@ -1,16 +1,14 @@
-# Environments and Sensitive Data
-.env
-.venv/
-env/
-venv/
-
-# Python artifacts
+.config/
+.docker/
+.gsutil/
+.local/
+.vim/
+.bash_logout
+.bashrc
+.gitconfig
+.profile
+.python-version
+.sudo_as_admin_successful
+.viminfo
 __pycache__/
-*.py[cod]
-*.class
-*.so
-
-# Cloud/System junk
-.DS_Store
-.gcloud/
-.google/
+*.log
