@@ -1,0 +1,16 @@
+# Environments and Sensitive Data
+.env
+.venv/
+env/
+venv/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.class
+*.so
+
+# Cloud/System junk
+.DS_Store
+.gcloud/
+.google/
