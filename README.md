@@ -1,27 +1,68 @@
-# 🚀 DevOps Co-Pilot: Multi-Agent SRE System
+# 🤖 DevOps Co-Pilot — Autonomous SRE System
 
-**Autonomous Agentic Framework for Automated Incident Remediation.** *Built for Google Gen AI Academy APAC Hackathon.*
+> **AI-powered SRE agent for incident analysis, Kubernetes remediation, and automated escalation.**
 
----
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-Hugging%20Face-yellow)](https://huggingface.co/spaces/MonkJay/DevopsCopilot)
+[![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python)](https://www.python.org/)
+[![Gemini](https://img.shields.io/badge/Gemini-2.5%20Flash-purple)](https://ai.google.dev/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Automation-326CE5?logo=kubernetes)](https://kubernetes.io/)
 
-## 🏗️ Technical Architecture Matrix
-| Layer | Technology | Implementation Detail |
-| :--- | :--- | :--- |
-| **Orchestrator** | Gemini 1.5 Pro | Multi-step reasoning & intent classification. |
-| **Knowledge Base** | AlloyDB + pgvector | Semantic RAG using `google_ml.embedding`. |
-| **Recovery Agent** | Gemini 1.5 Flash | Real-time SOP synthesis & remediation scripts. |
-| **Runtime** | Google Cloud Run | Serverless scaling with Startup CPU Boost. |
+DevOps Co-Pilot is an **autonomous SRE system** that combines **Gemini 2.5 Flash, local vector RAG, and Kubernetes automation** to analyze incidents, retrieve relevant operational procedures, execute remediation actions, and escalate unresolved issues to Jira.
 
----
+The goal is simple:
 
-## 🤖 Multi-Agent Workflow Logic
-1. **The Orchestrator:** Parses natural language into metadata and severity tiers.
-2. **The Librarian:** Executes semantic retrieval of internal SOPs using `text-embedding-004`.
-3. **The Recovery Agent:** Fuses context with live diagnostics for non-hallucinated plans.
-4. **The Executor:** Simulates remediation and auto-escalates to Jira if unstable.
+**Detect → Understand → Remediate → Verify → Escalate**
 
 ---
 
-## 🔗 Live Submission Assets
-* **Live App URL:** [https://devops-copilot-977439299115.us-central1.run.app](https://devops-copilot-977439299115.us-central1.run.app)
-* **GitHub Repository:** [https://github.com/jayanth-jain/devops-co-pilot](https://github.com/jayanth-jain/devops-co-pilot)
+## 🚀 Live Demo
+
+### [▶️ Try DevOps Co-Pilot on Hugging Face](https://huggingface.co/spaces/MonkJay/DevopsCopilot)
+
+---
+
+## 🏗️ System Architecture
+
+```text
+                    ┌──────────────────────┐
+                    │   Incident / Alert   │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │   AI Orchestrator    │
+                    │   Gemini 2.5 Flash   │
+                    └──────────┬───────────┘
+                               │
+                 ┌─────────────┴─────────────┐
+                 │                           │
+                 ▼                           ▼
+        ┌──────────────────┐       ┌──────────────────┐
+        │   Local Vector   │       │   Incident       │
+        │       RAG        │       │   Classification │
+        └────────┬─────────┘       └────────┬─────────┘
+                 │                          │
+                 └────────────┬─────────────┘
+                              ▼
+                    ┌──────────────────────┐
+                    │   Recovery Agent     │
+                    │   SOP → Remediation  │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │ Kubernetes Actions   │
+                    │     kubectl patch     │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │ State Verification   │
+                    └──────────┬───────────┘
+                               │
+                    ┌──────────┴──────────┐
+                    │                     │
+                 Resolved              Unresolved
+                    │                     │
+                    ▼                     ▼
+              ✅ Close Incident     🎫 Jira Escalation
