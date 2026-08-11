@@ -1,6 +1,6 @@
 import gradio as gr
 from database import find_multiple_fixes
-from main import run_copilot
+from cli_backup import run_copilot
 
 def agent_interface(issue):
     # This calls your existing Librarian logic
@@ -17,9 +17,9 @@ def agent_interface(issue):
     return output
 
 # Define the Professional UI
-with gr.Blocks(theme=gr.themes.Soft()) as demo:
+with gr.Blocks() as demo:
     gr.Markdown("# 🚀 DevOps Co-Pilot: Agentic SRE Interface")
-    gr.Markdown("Powered by **Gemini 1.5 Flash** & **AlloyDB pgvector**")
+    gr.Markdown("Powered by **Gemini 2.5 Flash** & **Local Serverless Vector Memory**")
     
     with gr.Row():
         with gr.Column():
@@ -32,4 +32,4 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
     submit_btn.click(fn=agent_interface, inputs=input_text, outputs=output_text)
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=8080)
+    demo.launch(server_name="0.0.0.0", server_port=8080, theme=gr.themes.Soft())

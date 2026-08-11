@@ -1,5 +1,19 @@
 import os
 import gradio as gr
+from google import genai
+from dotenv import load_dotenv
+
+# 1. Read the .env file
+load_dotenv()
+
+# 2. Pull the key explicitly
+api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+
+# 3. Initialize the client safely
+try:
+    client = genai.Client(api_key=api_key) if api_key else genai.Client()
+except Exception:
+    client = None
 
 def web_interface(issue):
     """Handles the interaction between the UI and the Multi-Agent logic."""
@@ -14,56 +28,36 @@ def web_interface(issue):
         return f"Error during execution: {str(e)}"
 
 def seed_database():
-    """Initializes the AlloyDB table and inserts the vector-enabled SOPs."""
+    """Initializes the local vector database and pre-computes SOP embeddings."""
     try:
-        from database import get_engine
-        import sqlalchemy
-        engine = get_engine()
-        with engine.connect() as conn:
-            # 1. Enable Required Extensions for AI and Vector search
-            conn.execute(sqlalchemy.text("CREATE EXTENSION IF NOT EXISTS google_ml_integration CASCADE;"))
-            conn.execute(sqlalchemy.text("CREATE EXTENSION IF NOT EXISTS vector CASCADE;"))
-            
-            # 2. Create the Documentation Table
-            conn.execute(sqlalchemy.text("""
-                CREATE TABLE IF NOT EXISTS documentation (
-                    id SERIAL PRIMARY KEY,
-                    issue_type TEXT,
-                    content TEXT,
-                    embedding VECTOR(768)
-                );
-            """))
-            
-            # 3. Seed the Knowledge Base with SRE Standard Operating Procedures (SOPs)
-            # This uses the text-embedding-004 model directly inside the SQL query
-            conn.execute(sqlalchemy.text("""
-                INSERT INTO documentation (issue_type, content, embedding) VALUES
-                ('CrashLoopBackOff', 'SOP-101: Pod memory limit reached. FIX: Increase memory limit to 512Mi in deployment.yaml and execute kubectl rollout restart.', google_ml.embedding('text-embedding-004', 'CrashLoopBackOff')::vector),
-                ('DatabaseError', 'SOP-110: Database connection pool exhausted. FIX: Increase max_connections in database parameters or implement connection pooling (PgBouncer).', google_ml.embedding('text-embedding-004', 'database')::vector),
-                ('ErrImagePull', 'SOP-105: Image pull failure. FIX: Verify Artifact Registry permissions and ensure the image tag exists in the repository.', google_ml.embedding('text-embedding-004', 'ErrImagePull')::vector)
-                ON CONFLICT DO NOTHING
-            """))
-            conn.commit()
-            return "✅ AlloyDB Table Created & Knowledge Base Seeded successfully!"
+        from database import seed_local_kb
+        count = seed_local_kb()
+        return f"✅ Local Vector Store Initialized & Seeded with {count} SRE SOPs!"
     except Exception as e:
         return f"❌ Seed failed: {str(e)}"
 
 # --- UI Layout Definition ---
 
-with gr.Blocks(theme=gr.themes.Soft()) as demo:
+with gr.Blocks() as demo:
     gr.Markdown("# 🚀 DevOps Co-Pilot | Multi-Agent SRE System")
-    gr.Markdown("### **Autonomous Incident Analysis & Recovery with AlloyDB RAG**")
+    gr.Markdown("### **Autonomous Incident Analysis & Recovery with Local Serverless Vector RAG**")
     
     with gr.Row():
         # Left Column: Controls and Instructions
         with gr.Column(scale=1):
             gr.Markdown("### 📋 How to Demo")
             gr.Markdown("""
-            1. **Initialize:** Click **'Seed Knowledge Base'** first to prime the AlloyDB vector store.
+            1. **Initialize:** Click **'Seed Knowledge Base'** first to prime the vector store.
             2. **Test:** Click an example below or type your own cloud incident.
             3. **Run:** Click **'Execute'** to trigger the Orchestrator, Librarian, and Recovery agents.
             """)
             
+            input_text = gr.Textbox(
+                label="Describe the Incident", 
+                placeholder="e.g., auth-service pods are in CrashLoopBackOff...", 
+                lines=4
+            )
+
             # Interactive Examples for the Judges
             gr.Examples(
                 examples=[
@@ -71,14 +65,8 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
                     ["The payment-api is throwing 500 errors; logs show database connection pool exhaustion."],
                     ["Frontend deployment failed with ErrImagePull; pods are stuck in Pending."]
                 ],
-                inputs=None, # Allows manual clicking
+                inputs=input_text, # Passed defined component
                 label="Quick-Test Scenarios"
-            )
-            
-            input_text = gr.Textbox(
-                label="Describe the Incident", 
-                placeholder="e.g., auth-service pods are in CrashLoopBackOff...", 
-                lines=4
             )
             
             with gr.Row():
@@ -89,7 +77,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
             gr.Markdown("""
             ### 💡 System Capabilities
             * **Real-time Diagnostics:** Categorizes Severity (P1-P4) and Issue Type.
-            * **RAG Engine:** Retrieves grounded SOPs from AlloyDB pgvector.
+            * **RAG Engine:** Retrieves grounded SOPs from Serverless Vector Memory.
             * **Self-Healing:** Generates precise `kubectl` recovery commands.
             * **Auto-Escalation:** Integrated Jira ticket generation if recovery fails.
             """)
@@ -108,7 +96,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
     gr.Markdown("---")
     gr.Markdown("""
     **Architecture Note:** This system leverages a **Multi-Agent RAG Pattern**. 
-    **AlloyDB** serves as the vector memory, while **Gemini 2.5 Flash** provides the reasoning backbone 
+    **Serverless Vector Memory** serves as the vector store, while **Gemini 2.5 Flash** provides the reasoning backbone 
     to synthesize actionable SRE recovery plans from unstructured incident data.
     """)
 
@@ -122,4 +110,4 @@ if __name__ == "__main__":
     # Cloud Run requires binding to 0.0.0.0 and port 8080
     port = int(os.environ.get("PORT", 8080))
     print(f"Starting SRE Co-Pilot on port {port}...")
-    demo.launch(server_name="0.0.0.0", server_port=port, share=False)
+    demo.launch(server_name="0.0.0.0", server_port=port, share=False, theme=gr.themes.Soft())
