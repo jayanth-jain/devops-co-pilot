@@ -20,8 +20,7 @@ def web_interface(issue):
     if not issue or not issue.strip():
         return "Please describe an incident."
     try:
-        # Import the core logic from your existing cli_backup.py
-        from cli_backup import run_copilot
+        from agent_engine import run_copilot
         result = run_copilot(issue)
         return result if result else "Analysis complete. Plan executed successfully."
     except Exception as e:

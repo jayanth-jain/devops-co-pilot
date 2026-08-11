@@ -1,6 +1,6 @@
 import gradio as gr
 from database import find_multiple_fixes
-from cli_backup import run_copilot
+from agent_engine import run_copilot
 
 def agent_interface(issue):
     # This calls your existing Librarian logic
