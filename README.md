@@ -692,9 +692,4 @@ Areas of interest:
               ESCALATION
 ```
 
-> **From incident detection to verified recovery — with AI in the loop.**
 
-```
-
-**One important change from your previous version:** I changed **“Local Vector RAG”** to **“Retrieval-Augmented Generation (RAG)”** because the README you supplied does not establish that embeddings/vector similarity search is actually implemented. That avoids making a claim you may not be able to defend in an interview.
-```
