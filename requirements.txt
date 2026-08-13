@@ -1,3 +1,4 @@
+python-dotenv
 google-genai>=1.68.0
 gradio
 
